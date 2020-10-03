@@ -3,13 +3,13 @@
 ### Installing
 - Clone the repository.
 - Download and install 64-bit [Python3](https://www.python.org/getit/). Python 3.7.9 is recommended. Make sure to check *Install Python 3 to PATH*
-- Install virtualenv. Run this on command prompt. Search `cmd` in the Windows start menu.
+- Install virtualenv. Run this on command prompt. Search `cmd` or `powershell` in the Windows start menu.
 ```bash
 pip install virtualenv
 ```
-- Go to AutoEQ location
+- Go to 4CB00 location
 ```bash
-cd C:\path\to\AutoEq-master
+cd C:\path\to\4CB00
 ```
 - Create virtual environment
 ```bash
