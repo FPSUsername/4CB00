@@ -6,6 +6,10 @@ import os.path
 import imageio
 import threading
 
+"""
+Reads a RAW image file using rawpy
+Returns the input file name, bayer image and RGB image
+"""
 def read_file():
     file_name = input("File name: ")
     if not os.path.isfile(file_name):
@@ -22,9 +26,14 @@ def read_file():
     file_name = os.path.splitext(file_name)[0]
     return file_name, bayer, rgb
 
+"""
+Compress each color of an image (RGB)
+Accepts a 2D array
+"""
 def compress(color):
     ahat = np.fft.rfft2(color)
     # Compress by throwing away low frequencies!
+
     # print("Run FFT")
     # M = im.shape[0]//R  # Rows
     # print("Input data type: {}\tshape: {}".format(im.dtype, im.shape))
@@ -52,20 +61,11 @@ def compress(color):
     return result
 
 """
-Compress using FFT
-
-Steps:
-1. Set compression parameters
-2. FFT on the image
-3. Compress the FFT
-4. Zero padding
-5. Inverse FFT
-
-https://dspguide.com/ch27/6.htm
+Split RGB, call compression function and reform the image.
+Accepts a 3D array
 """
-def compress_fft(ndarray_im, reduction):
+def compress_fft(ndarray_im):
     print("Compressing image")
-    R = reduction  # Reduction factor
     im = ndarray_im
 
     rgb = [im[:,:,0], im[:,:,1], im[:,:,2]]
@@ -85,6 +85,7 @@ def compress_fft(ndarray_im, reduction):
 
     rgb_compressed = np.stack(arrays, axis=2)
 
+    print("Image compressed")
     return rgb_compressed
 
 
@@ -96,5 +97,5 @@ def save_image(file_name, ndarray_image):
 
 if __name__ == '__main__':
     file_name, bayer, rgb = read_file()
-    image = compress_fft(rgb, 5)
+    image = compress_fft(rgb)
     save_image(file_name, image)
