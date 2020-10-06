@@ -34,31 +34,42 @@ def compress(color):
     ahat = np.fft.rfft2(color)
     # Compress by throwing away low frequencies!
 
-    # print("Run FFT")
-    # M = im.shape[0]//R  # Rows
-    # print("Input data type: {}\tshape: {}".format(im.dtype, im.shape))
-    # # print("Input:\n{}".format(im))
+    F = np.log(np.absolute(np.fft.fftshift(ahat)) + 1)
 
-    # print("FFT...")
-    # ahat = np.fft.rfftn(im, s=(len(im), len(im[0]), 3))
-    # print("FFT shape:{}".format(ahat.shape))
+    thresh = 0.00001 * np.amax(np.absolute(ahat))
+    ind = np.absolute(ahat)>thresh
+    #ind = ind.transpose()
+    ahatFilt = ahat*ind
 
-    # print("Stripping data...")
-    # c_ahat = ahat[0:M] # Strip the FFT rows
-    # print("Compressed FFT shape:{}".format(c_ahat.shape))
+    # count = ahat.size - ind.sum()
+    # percent = 100-count/(ahat.size)*100
 
-    # # Create zero array and insert the compressed array in zero array
-    # print("Zero padding...")
-    # c_ahat_p = np.zeros(ahat.shape, dtype=complex)
-    # c_ahat_p[:c_ahat.shape[0],:c_ahat.shape[1]] = c_ahat
-    # print("Zero padded FFT shape:{}".format(c_ahat_p.shape))
+    result = np.fft.irfft2(ahatFilt).astype(np.uint8)
+    return [result, F]
 
-    # print("IFFT...")
-    # result = np.fft.irfftn(c_ahat_p, s=(len(c_ahat_p), len(c_ahat_p[0]), 3)).astype(np.uint8)
-    # print("Output data type: {} shape: {}".format(result.dtype, result.shape))
+"""
+Use Matplotlib to plot the frequencies of each color
+Explects a dict where each value consists of a list,
+where the second key, [1], is the array of the frequencies
+"""
+def plot_frequencies(rgb_comp):
+    # Matplotlib render of the frequency domain
+    rows = 1
+    cols = len(rgb_comp.keys())
+    axes=[]
+    fig=plt.figure()
 
-    result = np.fft.irfft2(ahat).astype(np.uint8)
-    return result
+    plt.gray()
+    for index, key in enumerate(rgb_comp):
+        b = rgb_comp[key][1]
+        axes.append( fig.add_subplot(rows, cols, index + 1) )
+        subplot_title=(key + " frequencies")
+        axes[-1].set_title(subplot_title)
+        plt.imshow(b)
+    fig.tight_layout()
+    plt.show()
+
+    return None
 
 """
 Split RGB, call compression function and reform the image.
@@ -68,12 +79,12 @@ def compress_fft(ndarray_im):
     print("Compressing image")
     im = ndarray_im
 
-    rgb = [im[:,:,0], im[:,:,1], im[:,:,2]]
+    rgb = {"Red": im[:,:,0], "Green": im[:,:,1], "Blue": im[:,:,2]}
+    rgb_comp = {"Red": [], "Green": [], "Blue": []}  # Pre sorted
     threads = []
-    mydict = {}
 
-    for index, color in enumerate(rgb):
-        process = threading.Thread(target=lambda q, arg1: q.update({index: compress(arg1)}), args=(mydict, color))
+    for key, value in rgb.items():
+        process = threading.Thread(target=lambda q, arg1: q.update({key: compress(arg1)}), args=(rgb_comp, value))
         process.daemon = True
         process.start()
         threads.append(process)
@@ -81,8 +92,11 @@ def compress_fft(ndarray_im):
     for process in threads:
         process.join()
 
-    arrays = [mydict[0], mydict[1], mydict[2]]
+    answer = input("Do you want to see the frequency graphs? [y/n] ")
+    if answer.lower() == "y":
+        plot_frequencies(rgb_comp)
 
+    arrays = [rgb_comp["Red"][0], rgb_comp["Green"][0], rgb_comp["Blue"][0]]
     rgb_compressed = np.stack(arrays, axis=2)
 
     print("Image compressed")
