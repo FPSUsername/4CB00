@@ -296,9 +296,9 @@ def menu():
             break
 
         elif choice.startswith("a") or choice == "all":
-            file_name, bayer, rgb = read_raw_file()
-            rgb_fft, compression = compress_fft(rgb)
-            image = decompress_fft(rgb_fft)
+            file_name, rgb = read_raw_file()
+            rgb_fft, rgb_fft_full_shape, compression = compress_fft(rgb)
+            image = decompress_fft(rgb_fft, rgb_fft_full_shape)
 
             file_name = "{}_comp_{}_fft".format(file_name, compression)
             save_image(file_name, image)
