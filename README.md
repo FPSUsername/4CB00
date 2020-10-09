@@ -26,3 +26,26 @@ source venv/Scripts/activate
 ```bash
 pip install -r requirements.txt
 ```
+
+### Usage
+Make sure to activate the virtualenv (see [Installing](Installing))\
+Run the following command to start the program (for Linux use `python3`)
+```bash
+python main.py
+```
+
+Read the commands printed in the command prompt/terminal
+
+### Output
+The program can save the input image file in a form which consists of the rFFT2 values of each color and the full FFT image size.
+The rFFT2 data can be compressed and will be stored without zero padding.
+
+### Results
+Tested with a RAW image provided from [Signature Edits](https://www.signatureedits.com/free-raw-photos/).
+
+Results using skulls image (*inst = m.n_photo.graphy.NEF*):
+Compression<br>(input value) | FFT file size<br>KB | JPG file size<br>KB
+------------|-------------|---------
+0           | 542.595     | 1.542
+10          | 25.275      | 970
+60          | 10.076      | 922
